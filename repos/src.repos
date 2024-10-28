@@ -1,0 +1,13 @@
+  demos/ros2_control_demos:
+    type: git
+    url: https://github.com/ros-controls/ros2_control_demos
+    version: humble
+  drivers/can/ros2_j1939:
+    type: git
+    url: https://github.com/psaucedoa/ros2_j1939.git
+    version: develop
+
+  utilities/ros2_socketcan:
+    type: git
+    url: https://github.com/autowarefoundation/ros2_socketcan.git
+    version: main

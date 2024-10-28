@@ -1,0 +1,271 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        // network on/off
+        {
+            "label": "Toggle Network",
+            "detail": "Toggle the network off. Useful when mobility acts weird or something",
+            "type": "shell",
+            "command": "sudo ifconfig wlp7s0 down; sudo ifconfig wlp7s0 up",
+        },
+        // Build tasks
+        {
+            "label": "build",
+            "detail": "Build workspace (default)",
+            "type": "shell",
+            "command": "./scripts/build.sh",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "build_debug",
+            "detail": "Build workspace (debug)",
+            "type": "shell",
+            "command": "./scripts/build.sh",
+            "options": {
+                "env": {
+                    "BUILD_TYPE": "Debug"
+                }
+            },
+            "group": "build",
+            "problemMatcher": "$gcc"
+        },
+        // Test tasks
+        {
+            "label": "test",
+            "detail": "Run all unit tests and show results.",
+            "type": "shell",
+            "command": "./scripts/test.sh",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        },
+        // Clean
+        {
+            "label": "clean",
+            "detail": "Run the clean target",
+            "type": "shell",
+            "command": "colcon build --cmake-target clean --merge-install",
+            "problemMatcher": "$gcc"
+        },
+        // Wipe
+        {
+            "label": "wipe",
+            "detail": "Wipe build, install, and log",
+            "type": "shell",
+            "command": "colcon clean workspace -y; colcon clean packages -y",
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "purge",
+            "detail": "Purge workspace by deleting all generated files.",
+            "type": "shell",
+            "command": "rm -fr build install log; py3clean .",
+            "problemMatcher": []
+        },
+        // Linting and static code analysis tasks
+        {
+            "label": "fix",
+            "detail": "Reformat files with uncrustify.",
+            "type": "shell",
+            "command": "ament_uncrustify --reformat src/reo/",
+            "problemMatcher": []
+        },
+        {
+            "label": "uncrustify",
+            "detail": "Lint files with uncrustify.",
+            "type": "shell",
+            "command": "ament_uncrustify src/reo/",
+            "presentation": {
+                "panel": "dedicated",
+                "reveal": "silent",
+                "clear": true
+            },
+            "problemMatcher": [
+                {
+                    "owner": "uncrustify",
+                    "source": "uncrustify",
+                    "fileLocation": "relative",
+                    "pattern": [
+                        // just the file name message
+                        {
+                            "regexp": "^(.*)'(.*)':",
+                            "kind": "file",
+                            "file": 2,
+                            "message": 1
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "label": "cpplint",
+            "detail": "Lint files with cpplint.",
+            "type": "ament",
+            "task": "cpplint",
+            "path": "src/reo",
+            "problemMatcher": "$ament_cpplint",
+            "presentation": {
+                "panel": "dedicated",
+                "reveal": "silent",
+                "clear": true
+            },
+        },
+        {
+            "label": "cppcheck",
+            "detail": "Run static code checker cppcheck.",
+            "type": "ament",
+            "task": "cppcheck",
+            "path": "src/reo/",
+            "problemMatcher": "$ament_cppcheck",
+            "presentation": {
+                "panel": "dedicated",
+                "reveal": "silent",
+                "clear": true
+            },
+            "options": {
+                "env": {
+                    "AMENT_CPPCHECK_ALLOW_SLOW_VERSIONS": "1"
+                }
+            }
+        },
+        {
+            "label": "lint_cmake",
+            "detail": "Run lint on cmake files.",
+            "type": "ament",
+            "task": "lint_cmake",
+            "path": "src/reo/",
+            "problemMatcher": "$ament_lint_cmake",
+            "presentation": {
+                "panel": "dedicated",
+                "reveal": "silent",
+                "clear": true
+            }
+        },
+        {
+            "label": "flake8",
+            "detail": "Run flake8 on python files.",
+            "type": "ament",
+            "task": "flake8",
+            "path": "src/reo/",
+            "problemMatcher": "$ament_flake8",
+            "presentation": {
+                "panel": "dedicated",
+                "reveal": "silent",
+                "clear": true
+            }
+        },
+        {
+            "label": "pep257",
+            "detail": "Run pep257 on python files.",
+            "type": "ament",
+            "task": "pep257",
+            "path": "src/reo/",
+            "problemMatcher": "$ament_pep257",
+            "presentation": {
+                "panel": "dedicated",
+                "reveal": "silent",
+                "clear": true
+            }
+        },
+        {
+            "label": "xmllint",
+            "detail": "Run xmllint on xml files.",
+            "type": "ament",
+            "task": "xmllint",
+            "path": "src/reo/",
+            "problemMatcher": "$ament_xmllint",
+            "presentation": {
+                "panel": "dedicated",
+                "reveal": "silent",
+                "clear": true
+            }
+        },
+        // Linting and static code analysis tasks
+        {
+            "label": "lint all",
+            "detail": "Run all linters.",
+            "dependsOn": [
+                "cppcheck",
+                "flake8",
+                "lint_cmake",
+                "pep257",
+                "xmllint",
+                "uncrustify",
+                "cpplint"
+            ],
+            "problemMatcher": []
+        },
+        // Documentation generating tasks
+        {
+            "label": "generate-workspace-documentation",
+            "detail": "Update workspace level documentation with sphinx.",
+            "type": "shell",
+            "command": "sphinx-build -b html /workspaces/vscode-container-workspace/docs/source /workspaces/vscode-container-workspace/docs/built",
+            "problemMatcher": []
+        },
+        // Workspace editing tasks
+        {
+            "label": "new ament_cmake package",
+            "detail": "Create a new ROS cpp package from a template.",
+            "type": "shell",
+            "command": "ros2 pkg create --destination-directory src --build-type ament_cmake ${input:package}",
+            "problemMatcher": []
+        },
+        {
+            "label": "new ament_python package",
+            "detail": "Create a new ROS python package from a template.",
+            "type": "shell",
+            "command": "ros2 pkg create --destination-directory src --build-type ament_python ${input:package}",
+            "problemMatcher": []
+        },
+        {
+            "label": "import from workspace file",
+            "detail": "Use vcs to import modules specified by a workspace/rosinstall file.",
+            "type": "shell",
+            "command": "vcs import < repos/public.repos src/public --recursive && vcs import < repos/resources.repos resources --recursive && vcs import < repos/reo.repos src/reo --recursive",
+            "problemMatcher": []
+        },
+        {
+            "label": "update workspace file",
+            "detail": "Use vcs to update repositories in src to workspace file.",
+            "type": "shell",
+            "command": "vcs export src > repos/src.repos && vcs export resources > repos/resources.repos",
+            "problemMatcher": []
+        },
+        {
+            "label": "install dependencies",
+            "detail": "Install all dependencies specified in the workspaces package.xml files.",
+            "type": "shell",
+            "command": "sudo apt-get update && rosdep update && rosdep install --from-paths src --ignore-src -y",
+            "problemMatcher": []
+        },
+        {
+            "label": "setup",
+            "detail": "Set up the workspace",
+            "type": "shell",
+            "command": "./scripts/setup.sh",
+            "problemMatcher": []
+        },
+        {
+            "label": "add submodules from .repos",
+            "detail": "Create a git submodule for all repositories in your .repos file",
+            "type": "shell",
+            "command": "python3 .devcontainer/repos_to_submodules.py",
+            "problemMatcher": []
+        }
+    ],
+    "inputs": [
+        {
+            "id": "package",
+            "type": "promptString",
+            "description": "Package name"
+        }
+    ]
+}
