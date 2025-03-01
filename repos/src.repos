@@ -1,3 +1,4 @@
+repositories:
   demos/ros2_control_demos:
     type: git
     url: https://github.com/ros-controls/ros2_control_demos
