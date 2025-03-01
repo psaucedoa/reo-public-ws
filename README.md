@@ -163,6 +163,8 @@ EOT
 - Use the following link for install install instructions: 
 https://developer.nvidia.com/cuda-12-2-0-download-archive?target_os=Linux&target_arch=x86_64&Distribution=Ubuntu&target_version=22.04&target_type=deb_local
 
+> If using WSL2 make sure you select the Ubuntu-WSL2 tooklit version!
+
 #### Docker Configuration and Workspace Cloning
 ```bash
 sudo usermod -aG docker ${USER}
