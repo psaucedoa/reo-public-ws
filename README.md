@@ -63,16 +63,11 @@ cd
 mkdir docker
 cd && sudo tee /etc/docker/daemon.json > /dev/null <<EOT
 {
-    "data-root": "/home/rlab/docker",
-    "runtimes": {
-        "nvidia": {
-            "args": [],
-            "path": "nvidia-container-runtime"
-        }
-    }
+    "data-root": "/home/$USER$/docker",
 }
 EOT
 
+> Make sure $USER is actually the name of your home directory!
 ```
 ### Docker Configuration and Workspace Cloning
 ```bash
