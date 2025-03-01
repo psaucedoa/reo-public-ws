@@ -4,7 +4,7 @@
 FROM ubuntu:22.04 AS base
 
 # Metadata
-LABEL maintainer="Isaac Blankenau <isaac.j.blankenau@usace.army.mil>"
+LABEL maintainer="Arturo Saucedo <psaucedoa@gmail.com>"
 LABEL description="ROS2 development environment for CPU only computers"
 LABEL version="1.0"
 
@@ -87,62 +87,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         python3-breathe \
         ros-dev-tools \
         ros-${ROS_DISTRO}-ament-* \
-        ros-${ROS_DISTRO}-laser-geometry \
-        ros-${ROS_DISTRO}-map-msgs \
-        ros-${ROS_DISTRO}-generate-parameter-library \
-        ros-${ROS_DISTRO}-rviz-common \
-        ros-${ROS_DISTRO}-rviz-default-plugins \
-        ros-${ROS_DISTRO}-rviz-ogre-vendor \
-        ros-${ROS_DISTRO}-rviz-rendering \
-        ros-${ROS_DISTRO}-backward-ros \
-        ros-${ROS_DISTRO}-realtime-tools \
-        ros-${ROS_DISTRO}-xacro \
-        ros-${ROS_DISTRO}-rviz2 \
-        ros-${ROS_DISTRO}-can-msgs \
-        ros-${ROS_DISTRO}-foxglove-msgs \
-        ros-${ROS_DISTRO}-python-qt-binding \
-        ros-${ROS_DISTRO}-rqt-gui \
-        ros-${ROS_DISTRO}-rqt-gui-py \
-        ros-${ROS_DISTRO}-qt-gui \
-        ros-${ROS_DISTRO}-rsl \
-        ros-${ROS_DISTRO}-tl-expected \
-        ros-${ROS_DISTRO}-object-recognition-msgs \
-        ros-${ROS_DISTRO}-slam-toolbox \ 
-        ros-${ROS_DISTRO}-joint-state-publisher \
-        ros-${ROS_DISTRO}-bondcpp \
-        ros-${ROS_DISTRO}-diagnostic-updater \
-        ros-${ROS_DISTRO}-test-msgs \
-        ros-${ROS_DISTRO}-bond \
-        ros-${ROS_DISTRO}-ackermann-msgs \
-        ros-${ROS_DISTRO}-geometric-shapes \
-        ros-${ROS_DISTRO}-interactive-markers \
-        ros-${ROS_DISTRO}-joint-state-publisher-gui \
-        ros-${ROS_DISTRO}-eigen-stl-containers \
-        ros-${ROS_DISTRO}-octomap-msgs \
-        ros-${ROS_DISTRO}-octomap \
-        ros-${ROS_DISTRO}-random-numbers \
-        ros-${ROS_DISTRO}-ruckig \
-        ros-${ROS_DISTRO}-gazebo-ros-pkgs \
-        ros-${ROS_DISTRO}-behaviortree-cpp-v3 \
-        # ros-${ROS_DISTRO}-moveit-resources-fanuc-description \
-        # ros-${ROS_DISTRO}-warehouse-ros \
-        ros-${ROS_DISTRO}-kinematics-interface-kdl \
-        ros-${ROS_DISTRO}-kinematics-interface \
-        ros-${ROS_DISTRO}-filters \
-        # ros-${ROS_DISTRO}-moveit-msgs \
-        ros-${ROS_DISTRO}-control-msgs \
-        ros-${ROS_DISTRO}-srdfdom \
-        ros-${ROS_DISTRO}-ros-testing \
-        # ros-${ROS_DISTRO}-moveit-resources-panda-moveit-config \
-        ros-${ROS_DISTRO}-angles \
-        # ros-${ROS_DISTRO}-moveit-resources-fanuc-moveit-config \ 
-        ros-${ROS_DISTRO}-launch-param-builder \
-        ros-${ROS_DISTRO}-joy \
-        ros-${ROS_DISTRO}-control-toolbox \
-        ros-${ROS_DISTRO}-vision-msgs \
-        ros-${ROS_DISTRO}-ompl \
-        # ros-${ROS_DISTRO}-moveit-resources-pr2-description \
-        # ros-${ROS_DISTRO}-moveit-resources-panda-description && \
         python3-rosdep \
         libgoogle-glog-dev \
         libsuitesparse-dev \
@@ -157,52 +101,22 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 # Initialize rosdep
 RUN rosdep init && rosdep update
 
-FROM dev AS reqs
-
-RUN python3 -m pip install \
-    sphinx_rtd_theme \
-    sphinx-multiversion \
-    sphinx-copybutton\
-    sphinx-tabs\
-    ruamel.yaml\
-    autopep8\
-    flake8-builtins\
-    flake8-comprehensions\
-    flake8-docstrings\
-    flake8-import-order\
-    onnx\
-    scikit-learn\
-    ninja\
-    numpy-quaternion\
-    trimesh\
-    setuptools_scm>=6.2\
-    yourdfpy>=0.0.53\
-    warp-lang>=0.9.0\
-    tqdm\
-    importlib_resources\
-    pytest-repeat\
-    pytest-rerunfailures\
-    flake8-class-newline\
-    pandas\
-    rosbags\
-    uvloop==0.17.0\
-    black==21.12b0\
-    setuptools==65.7.0\
-    pyyaml\
-    paho-mqtt==1.6.1\
-    tensorflow\
-    flake8-blind-except\
-    flake8-quotes
-
-FROM reqs AS final
-
+# Install Python packages
+# COPY requirements.txt /tmp/requirements.txt
+# RUN --mount=type=cache,target=/root/.cache/pip \
+#     pip3 install --no-cache-dir -r /tmp/requirements.txt && rm /tmp/requirements.txt 
+    
 # Add MQTT binaries and libraries
 RUN --mount=type=cache,target=/var/cache/apt \
 apt-add-repository ppa:mosquitto-dev/mosquitto-ppa \
 && apt-get update && apt-get install -y \
         mosquitto \
         mosquitto-clients
+   
         
+# Add in some ros2 deps (can-msgs?)
+RUN apt-get install ros-humble-can-msgs
+
 # Set up non-root user
 RUN groupadd --gid $USER_GID $USERNAME \
     && useradd -s /bin/bash --uid $USER_UID --gid $USER_GID -m $USERNAME \
@@ -213,17 +127,12 @@ RUN groupadd --gid $USER_GID $USERNAME \
 RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> /home/$USERNAME/.bashrc \
     && echo "source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash" >> /home/$USERNAME/.bashrc
 
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y
-    # rm -rf /var/lib/apt/lists/
-
 # Set up workspace
 ARG WORKSPACE=/workspace
 RUN mkdir -p ${WORKSPACE} && chown ${USERNAME}:${USERNAME} ${WORKSPACE}
 RUN echo "if [ -f ${WORKSPACE}/install/setup.bash ]; then source ${WORKSPACE}/install/setup.bash; fi" >> /home/ros/.bashrc
 WORKDIR ${WORKSPACE}
-ENV REO_WS=/workspaces/reo-public-ws
-
+ENV REO_WS=/workspaces/reo-ws
 
 # Switch to non-root user
 USER $USERNAME
