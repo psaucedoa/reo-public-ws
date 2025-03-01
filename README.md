@@ -63,11 +63,10 @@ cd
 mkdir docker
 cd && sudo tee /etc/docker/daemon.json > /dev/null <<EOT
 {
-    "data-root": "/home/$USER$/docker",
+    "data-root": "/home/docker",
 }
 EOT
 
-> Make sure $USER is actually the name of your home directory!
 ```
 ### Docker Configuration and Workspace Cloning
 ```bash
